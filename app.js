@@ -21,9 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 // });
 
 //create blog api
- 
+
 app.post("/blog", async (req, res) => {
-  const {title,subTitle,description}=req.body
+  const { title, subTitle, description } = req.body;
 
   try {
     const data = await Blog.create({
@@ -42,40 +42,82 @@ app.post("/blog", async (req, res) => {
 });
 
 // get all blogs
-app.get("/blog", async(req,res) => { 
-  const data =await Blog.find()
-   
+app.get("/blog", async (req, res) => {
+  const data = await Blog.find();
+
   res.json({
-    message:" successfully  get all blogs ",
-    data:data,
-    
+    message: " successfully  get all blogs ",
+    data: data,
   });
 });
 
- // get single  blog 
+// get single  blog
 
- app.get("/blog/:id", async(req,res)=>{  
-   
- const id =req.params.id
+app.get("/blog/:id", async (req, res) => {
+  const id = req.params.id;
 
-  const data = await  Blog.findById(id)  
-   if(data)
-   {
+  const data = await Blog.findById(id);
+  if (data) {
     res.json({
-     "message":" error occured while getting a single data " ,
-    
-  })
-   }
+      message: " error occured while getting a single data ",
+    });
+  } else {
+    res.json({
+      message: " get a single blog successfully",
+      data: data,
+    });
+  }
+});
 
- else {
-
+// delete blog by id
+app.delete("/blog/:id", async (req, res) => {
+  const id = req.params.id;
+  const data = await Blog.findByIdAndDelete(id);
   res.json({
-     "message":" get a single blog successfully" ,
-     data:data,
-  })
-}
- })
+    message: "deleted successfully ",
+    data: data,
+  });
+});
 
+//update 
+app.patch("/blog/:id",  async (req,res) => {
+  const id = req.params.id;
+  const {title,subTitle,description } = req.body;
+
+  const data =  await Blog.findByIdAndUpdate(id,
+    {
+    title,
+    subTitle,
+    description,
+  }); 
+ 
+  if (data) {
+    res.status(200).json({
+      message: " updated successfully ",
+      data: data,
+    });
+  } else {
+    res.status(400).json({
+      message: " error on update  ",
+    });
+  }
+});  
+  
+// app.patch("/blog", async(req,res)=>{
+//  const {title,subTitle,description}=req.body  
+//   const foundContent = await Blog.findOne({
+//      title
+//   }) 
+//   foundContent.title=title
+//   foundContent.subTitle=subTitle
+//   foundContent.description=description 
+//     await foundContent.save(); 
+//     res.json({
+//        " message ":"successfully updated ", 
+      
+//     })
+  
+// })  
 
 app.listen(port, () => {
   dbConnect();
