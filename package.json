@@ -4,7 +4,7 @@
   "description": "��#\u0000 \u0000M\u0000E\u0000R\u0000N\u0000-\u00001\u0000.\u00000\u0000\r\u0000 \u0000",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon ./app.js"
+    "start": "nodemon --watch ./app.js"
   },
   "type": "module",
   "repository": {

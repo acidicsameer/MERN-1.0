@@ -36,7 +36,7 @@ app.post("/blog", async (req, res) => {
       description,
     });
 
-    res.json({
+    res.status(201).json({
       message: "successfully added data to the database",
       data: data,
     });
@@ -63,12 +63,13 @@ app.get("/blog/:id", async (req, res) => {
   const data = await Blog.findById(id);
   if (data) {
     res.json({
-      message: " error occured while getting a single data ",
+      message: " successfully got single Blog ",
+      data: data,
     });
   } else {
     res.json({
-      message: " get a single blog successfully",
-      data: data,
+      message: "error while getting single Blog",
+      
     });
   }
 });
