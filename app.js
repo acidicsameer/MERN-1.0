@@ -13,7 +13,9 @@ app.use(cors({
     "http://localhost:5173",
     "https://blogmgnt.vercel.app"
   ],
-  credentials: true
+  credentials: true,
+   allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PATCH", "DELETE", ]
 }));
 
 const port = process.env.PORT;
