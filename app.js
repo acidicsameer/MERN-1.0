@@ -8,8 +8,14 @@ import cors from "cors";
 
 dotenv.config();
 const app = express();
-app.use(cors({origin:"http://localhost:5173",})
-); 
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://blogmgnt.vercel.app"
+  ],
+  credentials: true
+}));
+
 const port = process.env.PORT;
 
 app.use(express.json());
