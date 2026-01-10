@@ -5,18 +5,20 @@ import dbConnect from "./db/dbConnect.js";
 import dotenv from "dotenv";
 import Blog from "./model/blog.model.js";
 import cors from "cors";
+import { v2 as cloudinary } from "cloudinary";
 
+import { upload } from "./cloudinary/multer.js";
+import { uploadOnCloudinary } from "./cloudinary/index.js";
 dotenv.config();
 const app = express();
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://blogmgnt.vercel.app"
-  ],
-  credentials: true,
-   allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PATCH", "DELETE", ]
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://blogmgnt.vercel.app"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  })
+);
 
 const port = process.env.PORT;
 
@@ -34,22 +36,26 @@ app.use(express.urlencoded({ extended: true }));
 
 //create blog api
 
-app.post("/blog", async (req, res) => {
-  const { title, subTitle, description } = req.body;
-
+app.post("/blog", upload.single("image"), async (req, res) => {
   try {
+    const { title, subTitle, description } = req.body;
+   const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+
+    if (!cloudinaryResponse) {
+      return res.status(500).json({ message: "Cloudinary upload failed" });
+    }
     const data = await Blog.create({
       title,
       subTitle,
       description,
+      Image: cloudinaryResponse.url ,
+     cloudinaryId:cloudinaryResponse.public_id
     });
 
-    res.status(201).json({
-      message: "successfully added data to the database",
-      data: data,
-    });
-  } catch (error) {
-    console.log("error occured while adding data to database ", error);
+    res.status(201).json({ message: "Blog created", data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error saving blog" });
   }
 });
 
@@ -77,7 +83,6 @@ app.get("/blog/:id", async (req, res) => {
   } else {
     res.json({
       message: "error while getting single Blog",
-      
     });
   }
 });
@@ -85,7 +90,14 @@ app.get("/blog/:id", async (req, res) => {
 // delete blog by id
 app.delete("/blog/:id", async (req, res) => {
   const id = req.params.id;
+
   const data = await Blog.findByIdAndDelete(id);
+  const cloudinaryId=data.cloudinaryId
+    // Delete from Cloudinary
+    if (cloudinaryId) {
+      await cloudinary.uploader.destroy(cloudinaryId);
+    }
+
   res.json({
     message: "deleted successfully ",
     data: data,

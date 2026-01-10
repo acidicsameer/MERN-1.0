@@ -16,6 +16,12 @@ description:{
      type:String,
      required:true,
 },
+Image:{
+     type:String
+},
+cloudinaryId:{
+     type:String
+}
   },{
      timestamps:true,
   }) 
